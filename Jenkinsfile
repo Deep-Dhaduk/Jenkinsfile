@@ -1,9 +1,12 @@
 pipeline {
   agent any
+  options { skipStagesAfterUnstable() }
+  environment { APP_ENV = 'staging' }
+
   stages {
     stage('Build') {
       steps {
-        // multiple steps using Windows shell
+        // Multiple steps on Windows
         bat 'echo Step 1: show Windows version & ver'
         bat 'echo Step 2: list workspace & dir'
       }
@@ -11,7 +14,7 @@ pipeline {
 
     stage('Test') {
       steps {
-        // create artifact + JUnit report on Windows
+        // Create a tiny artifact + a JUnit report
         bat @'
           mkdir reports 2>NUL
           mkdir build\libs 2>NUL
@@ -21,6 +24,7 @@ pipeline {
       }
     }
   }
+
   post {
     always {
       archiveArtifacts artifacts: 'build/libs/**/*', fingerprint: true
@@ -28,7 +32,7 @@ pipeline {
       echo 'Cleaning workspace'
       deleteDir()
     }
-    success { echo 'Pipeline Succeeded 🎉' }
-    failure { echo 'Pipeline FAILED — check console output' }
+    success  { echo 'Pipeline Succeeded 🎉' }
+    failure  { echo 'Pipeline FAILED — check console output' }
   }
 }
